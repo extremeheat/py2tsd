@@ -18,9 +18,10 @@ const optionDefinitions = [
 const options = commandLineArgs(optionDefinitions)
 const showUsage = () => {
   console.log(`py2tsd v${require('../package.json').version}\n\tEach time you run this CLI tool, we'll append to the last exported TSD. To avoid this, you can use the --clear flag.`)  
-  console.log(`usage: py2tsd \n\t<[--input | -i] python directory> \n\t<[--ts-out | -t] output tsd location> \n\t[[--exclude | -x] optional regex to use to skip python files]`)
-  console.log(`\t[[--match | -m] require match of regex string]\n\t[--clear | -c] -- clear the workspace cache`)
+  console.log(`usage: py2tsd \n\t<[--input | -i] python directory OR package name> \n\t<[--ts-out | -t] output tsd location> \n\t[[--exclude | -x] optional regex to use to skip python files]`)
+  console.log(`\t[[--match | -m] require match of regex string]\n\t[[--clear | -c] -- clear the workspace cache]`)
   console.log(`example: py2tsd -i ./cpython/Lib/ -o index.d.ts`)
+  console.log(`example: py2tsd -i torch -o tf.d.ts -c`)
 }
 
 // console.log('Opts', options)
@@ -29,22 +30,30 @@ async function main(options, shouldSkip) {
   python.cwd(join(__dirname, '../astexport/')) // allow python to import relative to that dir
   const astexport = await python('../astexport/astexport.py')
   const wd  = join(__dirname, '../wd/')
-  const dir = options.input
+  let dir = options.input
+  let prefix = '' // for package dirs
 
   let ok
   if (!fs.existsSync(wd)) {
     fs.mkdirSync(wd, { recursive: true })
-    console.log('cleared', wd)
     ok = true
   }
   
   if (!fs.existsSync(dir)) {
-    if (!ok) {
-      console.warn(`Input directory not found: ${dir}`)
-      showUsage()  
+    // The path specified isn't a valid dir, see if it's a package
+    if (dir && !dir.startsWith('.') && !dir.startsWith('/')) {
+      const packdir = await astexport.get_python_installdir(dir)
+      prefix = packdir.split(/\/|\\/).pop() + ','
+      dir = packdir
+    } else {
+      if (!ok) {
+        console.warn(`Input directory not found: ${dir}`)
+        showUsage()
+      }
+      process.exit()
     }
-    process.exit()
-  } else if (!options['ts-out']) {
+  }
+  if (!options['ts-out']) {
     if (!ok) {
       console.warn(`Please specify an output file for the tsd`)
       showUsage()
@@ -79,17 +88,19 @@ async function main(options, shouldSkip) {
 
   try { fs.mkdirSync(dirname(options['ts-out']), { recursive: true }) } catch {}
 
-  if (options.clear) {
+  if (options.clear !== undefined) {
     console.log('clearing ws...')
     fs.rmSync(wd, { recursive: true })
     console.log('ok')
+    fs.mkdirSync(wd, { recursive: true })
   }
 
   const pyFiles = getFiles(dir)
   const count = pyFiles.length
+  let failed = []
   let i = 0
   for (const file of pyFiles) {
-    const newName = file.replace(dir, '').split(/\/|\\/g).filter(f => f.length && !f.startsWith('.')).join(',')
+    const newName = prefix + file.replace(dir, '').split(/\/|\\/g).filter(f => f.length && !f.startsWith('.')).join(',')
     // console.log('New name', file, newName)
     // return
     const astFile = join(wd, newName + '.ast.json')
@@ -99,8 +110,17 @@ async function main(options, shouldSkip) {
     
     if (shouldSkip(file, intFile)) continue
 
-    await astexport.export(file, astFile)
-    fs.writeFileSync(intFile, JSON.stringify(genInter(require(astFile)), null, 2))
+    try {
+      await astexport.export(file, astFile)
+      fs.writeFileSync(intFile, JSON.stringify(genInter(require(astFile)), null, 2))
+    } catch {
+      console.log('Failed')
+      failed.push(file)
+    }
+  }
+
+  if (failed.length) {
+    console.log('Failed to parse and skipped:', failed)
   }
  
   const wdFiles = getFiles(wd)
