@@ -1,0 +1,7 @@
+__
+node_modules
+wd
+*.ts
+package-lock.json
+.DS*
+*.pyc

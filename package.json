@@ -1,0 +1,37 @@
+{
+  "name": "py2tsd",
+  "version": "0.0.1",
+  "description": "Converts Python codebases into TypeScript definitions",
+  "main": "src/index.js",
+  "bin": "./src/generate.js",
+  "scripts": {
+    "test": "mocha",
+    "start": "node ./src/generate.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/extremeheat/py2tsd.git"
+  },
+  "keywords": [
+    "python",
+    "javascript",
+    "typescript",
+    "bridge",
+    "definitions",
+    "tsd"
+  ],
+  "author": "extremeheat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/extremeheat/py2tsd/issues"
+  },
+  "homepage": "https://github.com/extremeheat/py2tsd#readme",
+  "dependencies": {
+    "command-line-args": "^5.1.3",
+    "pythonia": "^0.1.1"
+  },
+  "devDependencies": {
+    "mocha": "^9.0.2",
+    "py2json": "file:."
+  }
+}
