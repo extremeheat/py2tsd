@@ -1,5 +1,10 @@
 # py2tsd
 
+[![NPM version](https://img.shields.io/npm/v/py2tsd.svg)](http://npmjs.com/package/py2tsd)
+[![Build Status](https://github.com/extremeheat/py2tsd/workflows/CI/badge.svg)](https://github.com/extremeheat/py2tsd/actions/workflows/)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/extremeheat/py2tsd)
+
+
 Python to TypeScript definition generator. Intended for use with JsPyBridge.
 
 Uses the Python [astexporter lib written by fpoli](https://github.com/fpoli/python-astexport) to run Python AST to JSON.
