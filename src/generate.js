@@ -28,7 +28,7 @@ const showUsage = () => {
 
 async function main(options, shouldSkip) {
   await python.cwd(join(__dirname, '../astexport/')) // allow python to import relative to that dir
-  const astexport = await python('../astexport/astexport.py')
+  const astexport = await python(join(__dirname, '../astexport/astexport.py'))
   const wd  = join(__dirname, '../wd/')
   let dir = options.input
   let prefix = '' // for package dirs

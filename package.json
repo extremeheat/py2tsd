@@ -1,6 +1,6 @@
 {
   "name": "py2tsd",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Converts Python codebases into TypeScript definitions",
   "main": "src/index.js",
   "bin": "./src/generate.js",
