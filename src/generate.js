@@ -27,7 +27,7 @@ const showUsage = () => {
 // console.log('Opts', options)
 
 async function main(options, shouldSkip) {
-  python.cwd(join(__dirname, '../astexport/')) // allow python to import relative to that dir
+  await python.cwd(join(__dirname, '../astexport/')) // allow python to import relative to that dir
   const astexport = await python('../astexport/astexport.py')
   const wd  = join(__dirname, '../wd/')
   let dir = options.input
@@ -113,8 +113,8 @@ async function main(options, shouldSkip) {
     try {
       await astexport.export(file, astFile)
       fs.writeFileSync(intFile, JSON.stringify(genInter(require(astFile)), null, 2))
-    } catch {
-      console.log('Failed')
+    } catch (e) {
+      console.log(e)
       failed.push(file)
     }
   }

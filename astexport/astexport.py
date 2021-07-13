@@ -1,9 +1,12 @@
 # Written by @fpoli
 import argparse
 import importlib
-from astexport import __version__, __prog_name__
-from astexport.parse import parse
-from astexport.export import export_json
+import os
+# TODO: fix this is JsPyBridge
+import sys
+sys.path.append(os.getcwd())
+from parse import parse
+from export import export_json
 
 def export(input_path, output_path):
     """Read source from stdin, parse and export the AST as JSON"""
